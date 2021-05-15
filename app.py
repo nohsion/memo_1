@@ -1,7 +1,11 @@
+import datetime
 import hashlib
+import os
 
+import jwt
 import requests
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from flask import Flask, render_template, jsonify, request
 
 from pymongo import MongoClient
@@ -12,6 +16,11 @@ app = Flask(__name__)
 # mongoDB 추가
 client = MongoClient('localhost', 27017)
 db = client.get_database('sparta')
+
+# .env 파일을 환경변수로 설정
+load_dotenv()
+# 환경변수 읽어오기
+JWT_SECRET = os.environ['JWT_SECRET']
 
 
 # API 추가
@@ -30,12 +39,33 @@ def login():
 def register():
     return render_template('register.html')
 
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     id = request.form['id_give']
     pw = request.form['pw_give']
 
-    # TODO id, pw 검증 후에 JWT 만들어서 return
+    pw_hash = hashlib.sha256(pw.encode()).hexdigest()
+    user = db.users.find_one({'id': id, 'pw': pw_hash}, {'_id': False})
+
+    # 만약 가입했다면
+    if user:
+        # JWT 생성
+        expiration_time = datetime.timedelta(hours=1)
+        payload = {
+            'id': id,
+            # 발급시간으로부터 1시간동안 JWT 유효
+            'exp': datetime.datetime.utcnow() + expiration_time
+        }
+        token = jwt.encode(payload, JWT_SECRET)
+        print(token)
+
+        return jsonify({'result': 'success', 'token': token})
+
+    # 가입하지 않은 상태
+    else:
+        return jsonify({'result': 'fail', 'msg': '실패'})
+
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
@@ -52,6 +82,22 @@ def api_register():
     db.users.insert_one({'id': id, 'pw': pw_hash})
 
     return jsonify({'result': 'success'})
+
+
+@app.route('/user', methods=['POST'])
+def user_info():
+    token_receive = request.headers['authorization']
+    token = token_receive.split()[1]
+    print(token)
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        print(payload)
+        return jsonify({'result': 'success', 'id': payload['id']})
+    except jwt.exceptions.ExpiredSignatureError:
+        # try 부분을 실행했지만 위와 같은 에러가 난다면
+        return jsonify({'result': 'fail'})
+
 
 # 아티클 추가 API/
 @app.route('/memo', methods=['POST'])
