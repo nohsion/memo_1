@@ -21,7 +21,9 @@ db = client.get_database('sparta')
 load_dotenv()
 # 환경변수 읽어오기
 JWT_SECRET = os.environ['JWT_SECRET']
-
+CLIENT_ID = os.environ['CLIENT_ID']
+CALLBACK_URL = os.environ['CALLBACK_URL']
+SERVICE_URL = os.environ['SERVICE_URL']
 
 # API 추가
 @app.route('/', methods=['GET'])  # 데코레이터 문법 @
@@ -33,6 +35,7 @@ def index():
             payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
             print(payload)
             memos = list(db.articles.find({'id': payload['id']}, {'_id': False}))
+        # 쿠키
         except jwt.exceptions.ExpiredSignatureError:
             memos = []
 
@@ -44,7 +47,12 @@ def index():
 
 @app.route('/login', methods=['GET'])
 def login():
-    return render_template('login.html')
+    return render_template(
+        'login.html',
+        CLIENT_ID=CLIENT_ID,
+        CALLBACK_URL=CALLBACK_URL,
+        SERVICE_URL=SERVICE_URL
+    )
 
 
 @app.route('/register', methods=['GET'])
@@ -106,6 +114,7 @@ def user_info():
         payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         print(payload)
         return jsonify({'result': 'success', 'id': payload['id']})
+    # jwt 만료되면
     except jwt.exceptions.ExpiredSignatureError:
         # try 부분을 실행했지만 위와 같은 에러가 난다면
         return jsonify({'result': 'fail'})
