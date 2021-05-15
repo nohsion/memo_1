@@ -25,6 +25,7 @@ CLIENT_ID = os.environ['CLIENT_ID']
 CALLBACK_URL = os.environ['CALLBACK_URL']
 SERVICE_URL = os.environ['SERVICE_URL']
 
+
 # API 추가
 @app.route('/', methods=['GET'])  # 데코레이터 문법 @
 def index():
@@ -53,6 +54,11 @@ def login():
         CALLBACK_URL=CALLBACK_URL,
         SERVICE_URL=SERVICE_URL
     )
+
+
+@app.route('/naver', methods=['GET'])
+def callback():
+    return render_template('callback.html', CLIENT_ID=CLIENT_ID, CALLBACK_URL=CALLBACK_URL)
 
 
 @app.route('/register', methods=['GET'])
@@ -102,6 +108,22 @@ def api_register():
     db.users.insert_one({'id': id, 'pw': pw_hash})
 
     return jsonify({'result': 'success'})
+
+
+@app.route('/api/register/naver', methods=['POST'])
+def api_register_naver():
+    naver_id = request.form['naver_id']
+    if not db.users.find_one({'id': naver_id}, {'_id': False}):
+        db.users.insert_one({'id': naver_id, 'pw': ''})
+    # JWT 발급
+    expiration_time = datetime.timedelta(hours=1)
+    payload = {
+        'id': naver_id,
+        'exp': datetime.datetime.utcnow() + expiration_time
+    }
+    token = jwt.encode(payload, JWT_SECRET)
+    print(token)
+    return jsonify({'result': 'success', 'token': token})
 
 
 @app.route('/user', methods=['POST'])
