@@ -26,7 +26,19 @@ JWT_SECRET = os.environ['JWT_SECRET']
 # API 추가
 @app.route('/', methods=['GET'])  # 데코레이터 문법 @
 def index():
-    memos = list(db.articles.find({}, {'_id': False}))
+    token = request.cookies.get('loginToken')
+
+    if token:
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            print(payload)
+            memos = list(db.articles.find({'id': payload['id']}, {'_id': False}))
+        except jwt.exceptions.ExpiredSignatureError:
+            memos = []
+
+    else:
+        memos = []
+
     return render_template('index.html', test='테스트', memos=memos)
 
 
