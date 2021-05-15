@@ -24,6 +24,11 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/register', methods=['GET'])
+def register():
+    return render_template('login.html')
+
+
 # 아티클 추가 API/
 @app.route('/memo', methods=['POST'])
 def save_memo():
