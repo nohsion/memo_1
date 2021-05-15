@@ -103,6 +103,9 @@ def api_register():
     # 솔트 추가된 비밀번호를 해시
     # DB에 저장할 때는 (해시 결과물 + 적용한 솔트) 묶어서 저장
 
+    if db.users.find_one({'id': id}):
+        return jsonify({'result': 'id_dup', 'msg': '이미 존재하는 아이디입니다'})
+
     # 회원가입
     pw_hash = hashlib.sha256(pw.encode()).hexdigest()
     db.users.insert_one({'id': id, 'pw': pw_hash})

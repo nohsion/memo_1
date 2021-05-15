@@ -31,8 +31,11 @@
                     if (response['result'] == 'success') {
                         alert('회원가입이 완료되었습니다.')
                         window.location.href = '/login'
-                    } else {
+                    } else if (response['result'] == 'id_dup') {
                         alert(response['msg'])
+                        window.location.href = '/register'
+                    } else {
+                        alert('회원가입에 실패했습니다')
                     }
                 }
             })
