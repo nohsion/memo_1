@@ -99,12 +99,23 @@ def user_info():
         return jsonify({'result': 'fail'})
 
 
-# 아티클 추가 API/
+# 아티클 추가 API
 @app.route('/memo', methods=['POST'])
 def save_memo():
     form = request.form
     url_receive = form['url_give']
     comment_receive = form['comment_give']
+
+    token_receive = request.headers['authorization']
+    token = token_receive.split()[1]
+    print(token)
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        print(payload)
+    except jwt.exceptions.ExpiredSignatureError:
+        # try 부분을 실행했지만 위와 같은 에러가 난다면
+        return jsonify({'result': 'fail'})
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
@@ -130,6 +141,7 @@ def save_memo():
         'description': description['content'],
         'url': url['content'],
         'comment': comment_receive,
+        'id': payload['id'],
     }
     db.articles.insert_one(document)
 
