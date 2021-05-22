@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from flask import Blueprint, request, jsonify
 
-from app import db
+from app import db, JWT_SECRET
 
 bp = Blueprint(
     'memo',
@@ -13,7 +13,7 @@ bp = Blueprint(
 
 
 # 아티클 추가 API
-@bp.route('/memo', methods=['POST'])
+@bp.route('', methods=['POST'])
 def save_memo():
     form = request.form
     url_receive = form['url_give']
@@ -63,7 +63,7 @@ def save_memo():
     )
 
 
-@bp.route('/memo', methods=['GET'])
+@bp.route('', methods=['GET'])
 def list_memo():
     memos = list(db.articles.find({}, {'_id': False}))
     result = {
