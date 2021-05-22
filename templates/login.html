@@ -1,12 +1,13 @@
 <!-- templates/login.html -->
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <!-- Webpage Title -->
     <title>Hello, world!</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -50,30 +51,53 @@
     </script>
 </head>
 <body>
-<h1>로그인 페이지</h1>
+
 <div>
-    <div class="form-group">
-        <label for="userid">ID</label>
-        <input type="email" class="form-control" id="userid" aria-describedby="emailHelp" placeholder="My ID">
+    <div class="main-container">
+        <div class="main-wrap">
+            <header>
+                <div class="logo-wrap">
+                    <h1>로그인 페이지</h1>
+                    <img src="{{ url_for('static', filename='image/login-icon.png') }}">
+                </div>
+            </header>
+            <section class="login-input-section-wrap">
+                <div class="login-input-wrap">
+                    <label for="userid">ID</label>
+                    <input id="userid" placeholder="Username" type="text">
+                </div>
+                <div class="login-input-wrap password-wrap">
+                    <label for="userpw">PW</label>
+                    <input id="userpw" placeholder="Password" type="password">
+                </div>
+                <div class="login-button-wrap">
+                    <button onclick="login()">로그인</button>
+                </div>
+            </section>
+            <section class="Easy-sign-in-wrap">
+                <h4>Easier sign in <strong>NAVER</strong></h4>
+                <!-- 네이버아이디로 로그인 버튼 노출 영역 -->
+                <div id="naver_id_login"></div>
+                <a class="forget-msg" href="/register">회원가입</a>
+            </section>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="userpw">PW</label>
-        <input type="password" class="form-control" id="userpw" placeholder="My Password">
-    </div>
-    <button class="btn btn-primary" onclick="login()">로그인</button>
-    <a href="/register">회원이 아니라면?</a>
-</div>
-<!-- 네이버아이디로로그인 버튼 노출 영역 -->
-<div id="naver_id_login"></div>
-<!-- //네이버아이디로로그인 버튼 노출 영역 -->
-<script type="text/javascript">
-    var naver_id_login = new naver_id_login("{{ CLIENT_ID }}", "{{ CALLBACK_URL }}");
-    var state = naver_id_login.getUniqState();
-    naver_id_login.setButton("white", 2, 40);
-    naver_id_login.setDomain("{{ SERVICE_URL }}");
-    naver_id_login.setState(state);
-    // naver_id_login.setPopup();
-    naver_id_login.init_naver_id_login();
-</script>
+
+    <!-- //네이버아이디로 로그인 버튼 노출 영역 -->
+    <script type="text/javascript">
+        var naver_id_login = new naver_id_login("{{ CLIENT_ID }}", "{{ CALLBACK_URL }}");
+        var state = naver_id_login.getUniqState();
+        naver_id_login.setButton("white", 2, 40);
+        naver_id_login.setDomain("{{ SERVICE_URL }}");
+        naver_id_login.setState(state);
+        // naver_id_login.setPopup();
+        naver_id_login.init_naver_id_login();
+    </script>
 </body>
+<footer>
+    <div class="copyright-wrap">
+        <span>Copyright</span>
+        <a href="https://www.freeiconspng.com/img/3048">User Login Icon</a>
+    </div>
+</footer>
 </html>

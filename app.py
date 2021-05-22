@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import os
+import re
 
 import jwt
 import requests
@@ -24,6 +25,7 @@ JWT_SECRET = os.environ['JWT_SECRET']
 CLIENT_ID = os.environ['CLIENT_ID']
 CALLBACK_URL = os.environ['CALLBACK_URL']
 SERVICE_URL = os.environ['SERVICE_URL']
+
 
 # API 추가
 @app.route('/', methods=['GET'])  # 데코레이터 문법 @
@@ -53,6 +55,11 @@ def login():
         CALLBACK_URL=CALLBACK_URL,
         SERVICE_URL=SERVICE_URL
     )
+
+
+@app.route('/naver', methods=['GET'])
+def callback():
+    return render_template('callback.html', CLIENT_ID=CLIENT_ID, CALLBACK_URL=CALLBACK_URL)
 
 
 @app.route('/register', methods=['GET'])
@@ -87,21 +94,77 @@ def api_login():
         return jsonify({'result': 'fail', 'msg': '실패'})
 
 
+# < salting >
+# 1. pw + 랜덤 문자열 추가(salt)
+# 솔트 추가된 비밀번호를 해시
+# DB에 저장할 때는 (해시 결과물 + 적용한 솔트) 묶어서 저장
+
 @app.route('/api/register', methods=['POST'])
 def api_register():
     id = request.form['id_give']
     pw = request.form['pw_give']
 
-    # salting
-    # 1. pw + 랜덤 문자열 추가(salt)
-    # 솔트 추가된 비밀번호를 해시
-    # DB에 저장할 때는 (해시 결과물 + 적용한 솔트) 묶어서 저장
+    if db.users.find_one({'id': id}, {'_id': False}):
+        return jsonify({'result': 'fail', 'msg': '이미 존재하는 아이디입니다'})
+
+    # id 유효성 검사
+    if checkisEmpty(id):
+        return jsonify({'result': 'fail', 'msg': '아이디를 입력해주세요'})
+    if checkSpace(id):
+        return jsonify({'result': 'fail', 'msg': '아이디에 공백이 있으면 안됩니다'})
+    if checkUserID(id):
+        return jsonify({'result': 'fail', 'msg': '아이디는 영문 대소문자와 숫자 4~12자리로 입력해야합니다!'})
+
+    # pw 유효성 검사
+    if checkisEmpty(pw):
+        return jsonify({'result': 'fail', 'msg': '패스워드를 입력해주세요'})
+    if checkSpace(pw):
+        return jsonify({'result': 'fail', 'msg': '패스워드에 공백이 있으면 안됩니다'})
+
 
     # 회원가입
     pw_hash = hashlib.sha256(pw.encode()).hexdigest()
     db.users.insert_one({'id': id, 'pw': pw_hash})
 
     return jsonify({'result': 'success'})
+
+
+def checkisEmpty(value):
+    if not value:
+        return True
+
+def checkSpace(value):
+    t = value.split(" ")
+    if len(t) > 1:
+        return True
+
+def checkUserID(id):
+    idRegExp = '[a-zA-z0-9]{4,12}'
+    try:
+        re.match(idRegExp, id).group()
+    except AttributeError:
+        return True
+
+
+def checkUserPW(pw):
+    if len(pw) < 8:
+        return False
+
+
+@app.route('/api/register/naver', methods=['POST'])
+def api_register_naver():
+    naver_id = request.form['naver_id']
+    if not db.users.find_one({'id': naver_id}, {'_id': False}):
+        db.users.insert_one({'id': naver_id, 'pw': ''})
+    # JWT 발급
+    expiration_time = datetime.timedelta(hours=1)
+    payload = {
+        'id': naver_id,
+        'exp': datetime.datetime.utcnow() + expiration_time
+    }
+    token = jwt.encode(payload, JWT_SECRET)
+    print(token)
+    return jsonify({'result': 'success', 'token': token})
 
 
 @app.route('/user', methods=['POST'])

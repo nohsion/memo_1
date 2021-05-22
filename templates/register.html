@@ -31,8 +31,11 @@
                     if (response['result'] == 'success') {
                         alert('회원가입이 완료되었습니다.')
                         window.location.href = '/login'
-                    } else {
+                    } else if (response['result'] == 'fail') {
                         alert(response['msg'])
+                        window.location.href = '/register'
+                    } else {
+                        alert('회원가입에 실패했습니다')
                     }
                 }
             })
@@ -44,11 +47,11 @@
 <div>
     <div class="form-group">
         <label for="userid">ID</label>
-        <input type="text" class="form-control" id="userid" aria-describedby="emailHelp" placeholder="My ID">
+        <input type="text" class="form-control" id="userid" aria-describedby="emailHelp" placeholder="영문 숫자 포함 4자 이상, 최대 12자">
     </div>
     <div class="form-group">
         <label for="userpw">PW</label>
-        <input type="password" class="form-control" id="userpw" placeholder="My Password">
+        <input type="password" class="form-control" id="userpw" placeholder="숫자 영문 특수문자 포함 최소 8자 이상">
     </div>
     <button class="btn btn-primary" onclick="register()">회원가입</button>
 </div>
