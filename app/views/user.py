@@ -1,7 +1,7 @@
 import jwt
 from flask import Blueprint, request, jsonify
 
-
+from app import JWT_SECRET
 
 bp = Blueprint(
     'user',

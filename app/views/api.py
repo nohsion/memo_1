@@ -5,6 +5,7 @@ import re
 import jwt
 from flask import Blueprint, request, jsonify
 
+from app import db, JWT_SECRET
 
 bp = Blueprint(
     'api',  # 블루프린트 이름

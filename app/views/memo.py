@@ -3,13 +3,14 @@ import requests
 from bs4 import BeautifulSoup
 from flask import Blueprint, request, jsonify
 
-
+from app import db
 
 bp = Blueprint(
     'memo',
     __name__,
     url_prefix='/memo'
 )
+
 
 # 아티클 추가 API
 @bp.route('/memo', methods=['POST'])
