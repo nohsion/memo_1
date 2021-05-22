@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 # mongoDB 추가
 client = MongoClient('localhost', 27017)
-db = client.get_database('sparta')
+db = None
 
 # .env 파일을 환경변수로 설정
 load_dotenv()
@@ -16,9 +16,15 @@ JWT_SECRET = os.environ['JWT_SECRET']
 CLIENT_ID = os.environ['CLIENT_ID']
 CALLBACK_URL = os.environ['CALLBACK_URL']
 SERVICE_URL = os.environ['SERVICE_URL']
-def create_app():
+
+
+def create_app(database_name='sparta'):
     # flask Web Server 생성하기
     app = Flask(__name__)
+
+    # 파이썬 중급 - 전역 변수를 함수 내부에서 수정 가능하게 만들어줌
+    global db
+    db = client.get_database(database_name)
 
     from app.views import api
     from app.views import memo
