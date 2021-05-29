@@ -16,7 +16,10 @@ JWT_SECRET = os.environ['JWT_SECRET']
 CLIENT_ID = os.environ['CLIENT_ID']
 CALLBACK_URL = os.environ['CALLBACK_URL']
 SERVICE_URL = os.environ['SERVICE_URL']
+MONGODB_HOST = os.environ['MONGODB_HOST']
 
+client = MongoClient(MONGODB_HOST)
+db = None
 
 def create_app(database_name='sparta'):
     # flask Web Server 생성하기
