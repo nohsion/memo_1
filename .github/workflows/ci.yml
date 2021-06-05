@@ -29,3 +29,5 @@ jobs:
           SERVICE_URL: ""
           MONGODB_HOST: "mongodb://localhost:27017"
         run: pytest
+
+        #poetry export --output requirements.txt
