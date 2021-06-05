@@ -7,5 +7,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # github actions 라이브러리 이용해서 코드 가져오기
       - name: test
-        run: echo "github ci test"
+        uses: actions/checkout@v2
+      - name: set up python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: set up mongodb
+        uses: supercharge/mongodb-github-action@1.4.1
+        with:
+          mongodb-version: 4.4
+      - name: install requirements
+        run: pip install -r requirements.txt
+      - name: run pytest
+        run: pytest
